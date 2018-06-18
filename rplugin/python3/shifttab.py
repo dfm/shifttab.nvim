@@ -23,7 +23,29 @@ class Main(object):
                              path=path)
         sigs = script.call_signatures()
         if len(sigs):
-            self.vim.command('echo "{0}"'.format(
-                sigs[0].docstring().splitlines()[0].strip().replace("\"",
-                                                                    "\\\"")
-            ))
+            # Adapted from deoplete-jedi
+            comp = sigs[0]
+            if comp.type not in ("function", "class"):
+                return
+
+            params = []
+            for i, p in enumerate(comp.params):
+                desc = p.description.strip()
+                if i == 0 and desc == 'self':
+                    continue
+                if '\\n' in desc:
+                    desc = desc.replace('\\n', '\\x0A')
+                desc.replace("\"", "\\\"")
+                # Note: Hack for jedi param bugs
+                if desc.startswith('param ') or desc == 'param':
+                    desc = desc[5:].strip()
+                if desc:
+                    params.append(desc)
+
+            # width = self.vim.call("columns")
+            text = "{0}({1})".format(comp.name, ", ".join(params))
+            width = max(0, self.vim.eval("&columns")-14)
+            if len(text) > width:
+                width = max(0, width - 3)
+                text = text[:width] + "..."
+            self.vim.command('echo "{0}"'.format(text))

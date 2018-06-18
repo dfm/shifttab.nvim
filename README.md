@@ -26,6 +26,8 @@ autocmd FileType python inoremap <S-tab> <C-o>:call ShiftTab()<CR>
 autocmd FileType python setlocal noshowmode
 ```
 
+(Don't forget to run `:PlugInstall` to get the new plugin installed!)
+
 ## Usage
 
 When in insert mode, hit `Shift-Tab` when you're inside a function/method call
